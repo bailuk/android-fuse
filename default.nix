@@ -4,8 +4,8 @@ with import <nixpkgs> {};
 
 let
     envname = "android_fuse";
-    python = python27Full;
-    pyp = pkgs.python27Packages;
+    python = python37Full;
+    pyp = pkgs.python37Packages;
 in
 
 buildPythonPackage { 
