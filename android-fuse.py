@@ -8,6 +8,7 @@ import errno
 import time
 import stat
 import math
+from datetime import datetime
 
 # On Debian our "fuse" is named "fusepy".
 try:
@@ -224,6 +225,7 @@ def args_str(args):
 
 def print_header(args):
     print('_________________________________________________')
+    print(datetime.now().strftime("%H:%M:%S"))
     print(args_str(args))
     
 
@@ -258,13 +260,24 @@ def shell(args, w_data = None):
     return r_data
 
 
+def print_error(exception):
+    e = exception.errno
+
+    if e == errno.ENOTEMPTY:
+        print("ENOTEMPTY")
+    elif e == errno.ENOENT:
+        print("ENOENT")
+    elif e == errno.EPERM:
+        print("EPERM")
+
+
 def raise_error(exception = None):
-    if type(exception) is FuseOSError:
-        raise exception
-    else:
-        raise FuseOSError(errno.ENOENT)
-   
-   
+    if not type(exception) is FuseOSError:
+        exception = FuseOSError(errno.ENOENT)
+        
+    print_error(exception)
+    raise exception
+      
    
 def gcd(a, b, c):
     return math.gcd(a, math.gcd(b, c))
@@ -469,7 +482,10 @@ class AndroidADBFuse(LoggingMixIn, Operations):
             self.cache.remove(path)
             
         except Exception as e:
-            raise_error(e)
+            if e.errno == errno.EPERM:
+                raise_error(FuseOSError(errno.ENOTEMPTY))
+            else:
+                raise_error(e)
 
 
     def unlink(self, path):
