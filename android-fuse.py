@@ -541,7 +541,7 @@ class AndroidADBFuse(LoggingMixIn, Operations):
 
     def truncate(self, path, length, fh=None): 
         try:
-            args = ['truncate', '-s', str(length)]
+            args = ['truncate', '-s', str(length), path]
             shell(args)
             self.cache.remove(path)
         except Exception as e:
